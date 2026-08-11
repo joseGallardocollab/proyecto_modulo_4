@@ -192,7 +192,7 @@ def main():
         tk.Button(ventana, text="Eliminar Cliente", command=eliminar_cliente).place(x=310, y=240)
 
         tk.Label(ventana, text="Lista de Clientes/ Seleccione para eliminar o editar: ").place(x=50, y=280)
-        lista_clientes = tk.Listbox(ventana, width=50, height=10)
+        lista_clientes = tk.Listbox(ventana, width=85, height=12)
         lista_clientes.place(x=50, y=310)
 
         ventana.mainloop()

@@ -1,17 +1,19 @@
 class Cliente:
     def __init__(self, nombre, email, telefono):
         self.nombre = nombre
-        self.__email = email #dato privado
-        self.__telefono = telefono #dato privado
+        self.__email = email
+        self.__telefono = telefono
+        self.tipo = "Genérico"
 
-    def set_email (self, email):
+    def set_email(self, email):
         self.__email = email
 
     def set_telefono(self, telefono):
         self.__telefono = telefono
 
     def __str__(self):
-        return f"Cliente: {self.nombre}, Email: {self.__email}, Tel: {self.__telefono}"
+        return f"{self.tipo} - Cliente: {self.nombre}, Email: {self.__email}, Tel: {self.__telefono}"
+
 
 class ClienteRegular(Cliente):
     def __init__(self, nombre, email, telefono):
@@ -29,9 +31,6 @@ class ClienteCorporativo(Cliente):
         self.tipo = "Corporativo"
         self.empresa = empresa
 
-    #reutilización de __str__ para cliente corporativo
+#Reutilización de __str__ para las diferentes clases cliente
     def __str__(self):
-        return (f"Cliente: {self.nombre}, "
-                f"Email: {self._Cliente__email}, "
-                f"Tel: {self._Cliente__telefono}, "
-                f"Empresa: {self.empresa}")
+        return f"{self.tipo} - Cliente: {self.nombre}, Email: {self._Cliente__email}, Tel: {self._Cliente__telefono}, Empresa: {self.empresa}"
