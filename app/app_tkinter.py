@@ -44,8 +44,47 @@ def main():
             return True
         else:
             return False
+    
+    #formato para e-mail
+    def validar_email(email):
+        patron_email = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        return re.match(patron_email, email)     
 
+    #segun funciones de validación levanta los mensajes de error    
+    def validar_campos(nombre, email, telefono, tipo, empresa):
+        if not nombre or not email or not telefono:
+            messagebox.showerror("Error", "Todos los campos son obligatorios.")
+            return False
 
+        if not validar_nombre(nombre):
+            messagebox.showerror("Error", "El nombre debe contener solo letras y espacios.")
+            return False
+
+        if not validar_telefono(telefono):
+            messagebox.showerror("Error", "El teléfono debe contener solo números y entre 8 y 12 dígitos.")
+            return False
+
+        if not validar_email(email):
+            messagebox.showerror("Error", "El email debe tener el formato xxx@xxx.xxx")
+            return False
+
+        if tipo == "Corporativo" and not empresa:
+            messagebox.showerror("Error", "Debe ingresar el nombre de la empresa para clientes corporativos.")
+            return False
+
+        return True
+
+    #verifica que el cliente no este duplicado
+    def cliente_duplicado(nombre, index=None):
+        for i, c in enumerate(clientes):
+            # Si estamos editando, ignoramos el cliente actual (index)
+            if index is not None and i == index:
+                continue
+            if c.nombre == nombre:
+                return True
+        return False
+
+    #creación de cliente
     def crear_cliente():
         nombre = entry_nombre.get()
         email = entry_email.get()
@@ -53,30 +92,12 @@ def main():
         tipo = tipo_var.get()
         empresa = entry_empresa.get()
 
-        # Validación: campos obligatorios
-        if not nombre or not email or not telefono:
-            messagebox.showerror("Error", "Todos los campos son obligatorios.")
+        if not validar_campos(nombre, email, telefono, tipo, empresa):
             return
 
-        # Validación: nombre solo letras y espacios
-        if not validar_nombre(nombre):
-            messagebox.showerror("Error", "El nombre debe contener solo letras y espacios.")
-            return
-
-        # Validación: teléfono solo números y mínimo 8 dígitos
-        if not validar_telefono(telefono):
-            messagebox.showerror("Error", "El teléfono debe contener solo números y al menos 8 dígitos (12 max).")
-            return
-
-        # Validación: formato de email
-        patron_email = r"^[\w\.-]+@[\w\.-]+\.\w+$"
-        if not re.match(patron_email, email):
-            messagebox.showerror("Error", "El email debe tener el formato xxx@xxx.xxx")
-            return
-
-        # Validación para corporativo
-        if tipo == "Corporativo" and not empresa:
-            messagebox.showerror("Error", "Debe ingresar el nombre de la empresa para clientes corporativos.")
+        # Validar duplicado
+        if cliente_duplicado(nombre):
+            messagebox.showerror("Error", "Ya existe un cliente con ese nombre.")
             return
 
         # Crear cliente según tipo
@@ -89,16 +110,16 @@ def main():
 
         clientes.append(cliente)
         messagebox.showinfo("Cliente creado", f"{cliente.tipo} creado:\n{cliente}")
+        limpiar_campos()
         actualizar_lista()
 
-    
+    #edit de cliente
     def editar_cliente():
         seleccionado = lista_clientes.curselection()
         if not seleccionado:
             messagebox.showerror("Error", "Seleccione un cliente para editar.")
             return
         index = seleccionado[0]
-        cliente = clientes[index]
 
         nombre = entry_nombre.get()
         email = entry_email.get()
@@ -106,37 +127,42 @@ def main():
         tipo = tipo_var.get()
         empresa = entry_empresa.get()
 
-        # Actualizar datos comunes
+        if not validar_campos(nombre, email, telefono, tipo, empresa):
+            return
+
+        # Validar duplicado (ignorando el cliente actual)
+        if cliente_duplicado(nombre, email, telefono, index=index):
+            messagebox.showerror("Error", "Ya existe otro cliente con esos datos.")
+            return
+
+        cliente = clientes[index]
         cliente.nombre = nombre
         cliente.set_email(email)
         cliente.set_telefono(telefono)
 
-        # Si el tipo cambió a Corporativo
+        # Manejo de tipo
         if tipo == "Corporativo":
-            if not empresa:
-                messagebox.showerror("Error", "Debe ingresar el nombre de la empresa para clientes corporativos.")
-                return
-            # Si el cliente no era corporativo, lo reemplazo por uno nuevo
             if not isinstance(cliente, ClienteCorporativo):
                 cliente = ClienteCorporativo(nombre, email, telefono, empresa)
                 clientes[index] = cliente
             else:
                 cliente.empresa = empresa
         else:
-            # Si el tipo cambió a Regular o Premium
             if tipo == "Regular" and not isinstance(cliente, ClienteRegular):
                 cliente = ClienteRegular(nombre, email, telefono)
                 clientes[index] = cliente
             elif tipo == "Premium" and not isinstance(cliente, ClientePremium):
                 cliente = ClientePremium(nombre, email, telefono)
                 clientes[index] = cliente
-            # Si era corporativo y ahora no, eliminamos empresa
             if hasattr(cliente, "empresa"):
                 cliente.empresa = None
 
         messagebox.showinfo("Cliente editado", f"Cliente actualizado:\n{cliente}")
+        limpiar_campos()
         actualizar_lista()
 
+
+    #eliminación de cliente
     def eliminar_cliente():
         seleccionado = lista_clientes.curselection()
         if not seleccionado:
@@ -145,19 +171,28 @@ def main():
         index = seleccionado[0]
         cliente = clientes.pop(index)
         messagebox.showinfo("Cliente eliminado", f"Cliente eliminado:\n{cliente}")
+        limpiar_campos()
         actualizar_lista()
 
+    #Actualiza la lista
     def actualizar_lista():
         lista_clientes.delete(0, tk.END)
         for c in clientes:
             lista_clientes.insert(tk.END, str(c))
 
+    #limpia el campo empresa
     def actualizar_entry(*args):
         if tipo_var.get() == "Corporativo":
             entry_empresa.config(state="normal")
         else:
             entry_empresa.delete(0, tk.END)
-            entry_empresa.config(state="disabled")        
+            entry_empresa.config(state="disabled")    
+
+    #Limpia los demás campos
+    def limpiar_campos():
+        entry_nombre.delete(0, tk.END)
+        entry_email.delete(0, tk.END)
+        entry_telefono.delete(0, tk.END)
 
     # ---------------- Pantalla principal ----------------
     def ventana_principal():
