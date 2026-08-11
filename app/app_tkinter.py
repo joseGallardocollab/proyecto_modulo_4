@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from clases.clientes import ClienteRegular, ClientePremium, ClienteCorporativo
 import config.config as config
+import re
 
 intentos = 3
 
@@ -26,6 +27,23 @@ def main():
                 
 
     # ---------------- Funciones ----------------
+
+    # Permite letras (mayúsculas/minúsculas) y espacios
+    def validar_nombre(nombre):   
+        patron = r"^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$"
+        return re.match(patron, nombre) is not None
+    
+    def validar_telefono(telefono):
+        try:
+            int(telefono)
+        except ValueError:
+            return False
+        
+        if len(telefono) < 8:
+            return False
+  
+        return True
+
     def crear_cliente():
         nombre = entry_nombre.get()
         email = entry_email.get()
@@ -33,9 +51,25 @@ def main():
         tipo = tipo_var.get()
         empresa = entry_empresa.get()
 
-        # Validación para cliente regular y premium
+        # Validación: campos obligatorios
         if not nombre or not email or not telefono:
             messagebox.showerror("Error", "Todos los campos son obligatorios.")
+            return
+
+        # Validación: nombre solo letras y espacios
+        if not validar_nombre(nombre):
+            messagebox.showerror("Error", "El nombre debe contener solo letras y espacios.")
+            return
+
+        # Validación: teléfono solo números y mínimo 8 dígitos
+        if not validar_telefono(telefono):
+            messagebox.showerror("Error", "El teléfono debe contener solo números y al menos 8 dígitos.")
+            return
+
+        # Validación: formato de email
+        patron_email = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        if not re.match(patron_email, email):
+            messagebox.showerror("Error", "El email debe tener el formato xxx@xxx.xxx")
             return
 
         # Validación para corporativo
@@ -54,6 +88,7 @@ def main():
         clientes.append(cliente)
         messagebox.showinfo("Cliente creado", f"{cliente.tipo} creado:\n{cliente}")
         actualizar_lista()
+
     
     def editar_cliente():
         seleccionado = lista_clientes.curselection()
@@ -130,15 +165,15 @@ def main():
         ventana.title("Gestión de Clientes - SolutionTech")
         ventana.geometry("600x550")
 
-        tk.Label(ventana, text="Nombre:").place(x=50, y=30)
+        tk.Label(ventana, text="Nombre: ").place(x=50, y=30)
         entry_nombre = tk.Entry(ventana)
         entry_nombre.place(x=150, y=30)
 
-        tk.Label(ventana, text="Email:").place(x=50, y=70)
+        tk.Label(ventana, text="Email: ").place(x=50, y=70)
         entry_email = tk.Entry(ventana)
         entry_email.place(x=150, y=70)
 
-        tk.Label(ventana, text="Teléfono:").place(x=50, y=110)
+        tk.Label(ventana, text="Teléfono: ").place(x=50, y=110)
         entry_telefono = tk.Entry(ventana)
         entry_telefono.place(x=150, y=110)
 

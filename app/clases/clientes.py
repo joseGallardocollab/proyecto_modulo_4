@@ -29,6 +29,7 @@ class ClienteCorporativo(Cliente):
         self.tipo = "Corporativo"
         self.empresa = empresa
 
+    #reutilización de __str__ para cliente corporativo
     def __str__(self):
         return (f"Cliente: {self.nombre}, "
                 f"Email: {self._Cliente__email}, "
