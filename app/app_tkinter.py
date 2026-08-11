@@ -28,6 +28,11 @@ def main():
 
     # ---------------- Funciones ----------------
 
+    #Función extra que permite almacenar en un log basico la lista del cliente creado, editado o eliminado
+    def registrar_evento(accion, cliente):
+        with open("dato_cliente_log.txt", "a", encoding="utf-8") as archivo:
+            archivo.write(f"{accion}: {cliente} de tipo: f{cliente.tipo}\n")
+
     # Permite letras (mayúsculas/minúsculas) y espacios
     def validar_nombre(nombre):   
         patron = r"^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$"
@@ -109,6 +114,10 @@ def main():
             cliente = ClienteCorporativo(nombre, email, telefono, empresa)
 
         clientes.append(cliente)
+
+        #se añade el cliente al log
+        registrar_evento("Cliente creado", cliente)
+
         messagebox.showinfo("Cliente creado", f"{cliente.tipo} creado:\n{cliente}")
         limpiar_campos()
         actualizar_lista()
@@ -128,11 +137,6 @@ def main():
         empresa = entry_empresa.get()
 
         if not validar_campos(nombre, email, telefono, tipo, empresa):
-            return
-
-        # Validar duplicado (ignorando el cliente actual)
-        if cliente_duplicado(nombre, email, telefono, index=index):
-            messagebox.showerror("Error", "Ya existe otro cliente con esos datos.")
             return
 
         cliente = clientes[index]
@@ -157,6 +161,8 @@ def main():
             if hasattr(cliente, "empresa"):
                 cliente.empresa = None
 
+        registrar_evento("Cliente editado", cliente)
+
         messagebox.showinfo("Cliente editado", f"Cliente actualizado:\n{cliente}")
         limpiar_campos()
         actualizar_lista()
@@ -170,15 +176,25 @@ def main():
             return
         index = seleccionado[0]
         cliente = clientes.pop(index)
+
+        registrar_evento("Cliente eliminado", cliente)
         messagebox.showinfo("Cliente eliminado", f"Cliente eliminado:\n{cliente}")
         limpiar_campos()
         actualizar_lista()
 
-    #Actualiza la lista
+    #Actualiza la lista y mantiene el foco en la selección de la lista al seleccionar para rellenar campos con datos para poder editarlo
     def actualizar_lista():
+        seleccionado = lista_clientes.curselection()
+        index = seleccionado[0] if seleccionado else None
+
         lista_clientes.delete(0, tk.END)
         for c in clientes:
             lista_clientes.insert(tk.END, str(c))
+
+        if index is not None and index < len(clientes):
+            lista_clientes.selection_set(index)
+            lista_clientes.activate(index)
+            lista_clientes.see(index)  
 
     #limpia el campo empresa
     def actualizar_entry(*args):
@@ -193,6 +209,33 @@ def main():
         entry_nombre.delete(0, tk.END)
         entry_email.delete(0, tk.END)
         entry_telefono.delete(0, tk.END)
+
+    #Rellena los campos con los datos del cliente al tocar la lista
+    #lo uso para facilitar la edición
+    def rellenar_campos(event):
+        seleccionado = lista_clientes.curselection()
+        if not seleccionado:
+            return
+        index = seleccionado[0]
+        cliente = clientes[index]
+
+        entry_nombre.delete(0, tk.END)
+        entry_nombre.insert(0, cliente.nombre)
+
+        entry_email.delete(0, tk.END)
+        entry_email.insert(0, cliente._Cliente__email)
+
+        entry_telefono.delete(0, tk.END)
+        entry_telefono.insert(0, cliente._Cliente__telefono)
+
+        if isinstance(cliente, ClienteCorporativo):
+            entry_empresa.config(state="normal")
+            entry_empresa.delete(0, tk.END)
+            entry_empresa.insert(0, cliente.empresa)
+        else:
+            entry_empresa.delete(0, tk.END)
+            entry_empresa.config(state="disabled")
+
 
     # ---------------- Pantalla principal ----------------
     def ventana_principal():
@@ -232,6 +275,7 @@ def main():
         lista_clientes = tk.Listbox(ventana, width=85, height=12)
         lista_clientes.place(x=50, y=310)
 
+        lista_clientes.bind("<<ListboxSelect>>", rellenar_campos)
         ventana.mainloop()
 
     # ---------------- Ventana del login ----------------
