@@ -35,14 +35,16 @@ def main():
     
     def validar_telefono(telefono):
         try:
-            int(telefono)
+            int(telefono)  # asegura que sean solo números
         except ValueError:
             return False
         
-        if len(telefono) < 8:
+        # Validar longitud entre 8 y 12
+        if len(telefono) >= 8 and len(telefono) <= 12:
+            return True
+        else:
             return False
-  
-        return True
+
 
     def crear_cliente():
         nombre = entry_nombre.get()
@@ -63,7 +65,7 @@ def main():
 
         # Validación: teléfono solo números y mínimo 8 dígitos
         if not validar_telefono(telefono):
-            messagebox.showerror("Error", "El teléfono debe contener solo números y al menos 8 dígitos.")
+            messagebox.showerror("Error", "El teléfono debe contener solo números y al menos 8 dígitos (12 max).")
             return
 
         # Validación: formato de email
