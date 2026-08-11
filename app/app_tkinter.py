@@ -238,6 +238,10 @@ def main():
         else:
             entry_empresa.delete(0, tk.END)
             entry_empresa.config(state="disabled")
+        #Reaplica la selección para que no se pierda el foco visual
+        lista_clientes.selection_set(index)
+        lista_clientes.activate(index)
+        lista_clientes.see(index)    
 
 
     # ---------------- Pantalla principal ----------------
@@ -275,7 +279,7 @@ def main():
         tk.Button(ventana, text="Eliminar Cliente", command=eliminar_cliente).place(x=310, y=240)
 
         tk.Label(ventana, text="Lista de Clientes/ Seleccione para eliminar o editar: ").place(x=50, y=280)
-        lista_clientes = tk.Listbox(ventana, width=85, height=12)
+        lista_clientes = tk.Listbox(ventana, width=85, height=12, exportselection=False)
         lista_clientes.place(x=50, y=310)
 
         lista_clientes.bind("<<ListboxSelect>>", rellenar_campos)

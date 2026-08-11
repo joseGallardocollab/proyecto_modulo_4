@@ -1,1 +1,5 @@
 
+[2026-08-10 22:25:16] Cliente creado: Regular - Cliente: pepe, Email: jose4646@hot.com, Tel: 8893283928 de tipo: Regular
+[2026-08-10 22:26:33] Cliente editado: Regular - Cliente: pepe, Email: jose4646@hot.com, Tel: 8893283928 de tipo: Regular
+[2026-08-10 22:31:42] Cliente creado: Regular - Cliente: pepe, Email: jo@ho.com, Tel: 333333333 de tipo: Regular
+[2026-08-10 22:31:53] Cliente editado: Regular - Cliente: pepe, Email: jo@ho.com, Tel: 44443333 de tipo: Regular
