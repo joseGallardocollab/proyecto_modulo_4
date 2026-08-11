@@ -3,6 +3,7 @@ from tkinter import messagebox
 from clases.clientes import ClienteRegular, ClientePremium, ClienteCorporativo
 import config.config as config
 import re
+from datetime import datetime
 
 intentos = 3
 
@@ -30,8 +31,10 @@ def main():
 
     #Función extra que permite almacenar en un log basico la lista del cliente creado, editado o eliminado
     def registrar_evento(accion, cliente):
+        # Obtiene fecha y hora actual en formato legible
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with open("dato_cliente_log.txt", "a", encoding="utf-8") as archivo:
-            archivo.write(f"{accion}: {cliente} de tipo: f{cliente.tipo}\n")
+            archivo.write(f"[{timestamp}] {accion}: {cliente} de tipo: {cliente.tipo}\n")
 
     # Permite letras (mayúsculas/minúsculas) y espacios
     def validar_nombre(nombre):   
