@@ -32,4 +32,3 @@ Por último añadi una funcionalidad extra que recupera y genera un log a tiempo
 Este log esta generado para obtener los datos a tiempo real y terminar la función cuando termina su uso.
 
 
-
